@@ -19,14 +19,18 @@ public class BookService implements IBookService{
 
     @Autowired
     BookStoreRepository bookStoreRepository;
-
+    /**
+     * Add New Book Data
+     */
     @Override
     public Book createBook(BookDTO bookDTO) {
         Book newBook = new Book(bookDTO);
           return  bookStoreRepository.save(newBook);
 
     }
-
+    /**
+     * Get Particular Book Data By BookId
+     */
     @Override
     public Optional<Book> getBookDataById(int BookId) {
         Optional<Book> getBook=bookStoreRepository.findById(BookId);
@@ -36,13 +40,18 @@ public class BookService implements IBookService{
         return getBook;
 
     }
+    /**
+     * Get All Book Data
+     */
 
     @Override
     public List<Book> getAllBookData() {
         List<Book> getBooks=bookStoreRepository.findAll();
         return getBooks;
     }
-
+    /**
+     * Update Book data by Book Id
+     */
     @Override
     public Book updateRecordById(Integer BookId, BookDTO bookDTO) {
 
@@ -57,7 +66,9 @@ public class BookService implements IBookService{
         }
     }
 
-
+    /**
+     * Delete Book data By BookId
+     */
     @Override
     public String deleteRecordByToken(int BookId) {
         Optional<Book> newBook = bookStoreRepository.findById(BookId);
@@ -69,7 +80,9 @@ public class BookService implements IBookService{
         return "data deleted succesfull";
     }
 
-
+    /**
+     * Search Book By Name
+     */
     @Override
     public List<Book> getBookByName(String bookName) {
         List<Book> findBook= bookStoreRepository.findByBookName(bookName);
@@ -78,19 +91,25 @@ public class BookService implements IBookService{
         }
         return findBook;
     }
-
+    /**
+     * Sorted Ascending order by Book Price
+     */
     @Override
     public List<Book> sortedListOfBooksInAscendingOrder() {
         List<Book> getSortedList=  bookStoreRepository.getSortedListOfBooksInAsc();
         return getSortedList;
     }
-
+    /**
+     * Sorted descending order by Book Price
+     */
     @Override
     public List<Book> sortedListOfBooksInDescendingOrder() {
         List<Book> getSortedListInDesc=  bookStoreRepository.getSortedListOfBooksInDesc();
         return getSortedListInDesc;
     }
-
+    /**
+     * update the Bokk Quantity
+     */
     @Override
     public Book updateQuantity(Integer id, Integer quantity) {
         Optional<Book> book = bookStoreRepository.findById(id);
