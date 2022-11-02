@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseDTO {
-    private String message;
-    private Object data;
-
+public class OrderDTO {
+    private int quantity;
+    private String address;
+    private Integer bookId;
 
 }

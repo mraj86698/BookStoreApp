@@ -91,18 +91,7 @@ public class BookController {
             ResponseDTO dto = new ResponseDTO(" Book Record updated successfully by Id",updateRecord);
             return new ResponseEntity(dto,HttpStatus.ACCEPTED);
         }
-        /**
-         * Search By BookName
-         * @param name
-         * @return
-         */
-        @GetMapping("searchByBookName/{name}")
-        public ResponseEntity<ResponseDTO> getBookByName(@PathVariable("name") String name)
-        {
-           List<Book> listOfBooks = bookService.getBookByName(name);
-            ResponseDTO dto = new ResponseDTO("Data retrieved successfully (:",listOfBooks);
-            return new ResponseEntity(dto,HttpStatus.OK);
-        }
+
     /**
      * Sort Ascending order By Book Price
      * @return
@@ -126,17 +115,6 @@ public class BookController {
         return new ResponseEntity(dto,HttpStatus.OK);
     }
 
-    /**
-     * Update the Quantity using Put Mapping
-     * @param id
-     * @param quantity
-     * @return
-     */
-    @PutMapping("/updateQuantity/{id}")
-    public ResponseEntity<ResponseDTO> updateQuantity(@PathVariable Integer id,@RequestBody Integer quantity){
-        Book newBook = bookService.updateQuantity(id,quantity);
-        ResponseDTO dto = new ResponseDTO("Quantity for book record updated successfully !",newBook);
-        return new ResponseEntity(dto,HttpStatus.OK);
-    }
+
 
 }

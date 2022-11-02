@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.example.demo.DTO.CartDTO;
@@ -17,7 +18,16 @@ public interface ICartService {
 
     Cart insertItems(CartDTO cartdto);
 
-    Cart updateQuantity(Integer id, Integer quantity);
+
+
+    List<Cart> getCartDetailsByUser(String token);
+
+	/**
+	 * To update Quantity
+	 */
+	Cart updateQuantity(String token, Integer cartId, int quantity);
+
+
 
 
 

@@ -80,17 +80,7 @@ public class BookService implements IBookService{
         return "data deleted succesfull";
     }
 
-    /**
-     * Search Book By Name
-     */
-    @Override
-    public List<Book> getBookByName(String bookName) {
-        List<Book> findBook= bookStoreRepository.findByBookName(bookName);
-        if(findBook.isEmpty()){
-            throw new BookStoreException(" Details for provided Book is not found");
-        }
-        return findBook;
-    }
+
     /**
      * Sorted Ascending order by Book Price
      */
@@ -108,7 +98,7 @@ public class BookService implements IBookService{
         return getSortedListInDesc;
     }
     /**
-     * update the Bokk Quantity
+     * update the Book Quantity
      */
     @Override
     public Book updateQuantity(Integer id, Integer quantity) {
