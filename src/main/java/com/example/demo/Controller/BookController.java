@@ -79,15 +79,23 @@ public class BookController {
             return new ResponseEntity(dto,HttpStatus.OK);
         }
 
-
-        //update record by id
+        /**
+         * Update Book Details fo BookId Using Put Mapping
+         * @param BookId
+         * @param bookDTO
+         * @return
+         */
         @PutMapping("/updateBookById/{BookId}")
         public ResponseEntity<String> updateRecordById(@PathVariable Integer BookId,@Valid @RequestBody BookDTO bookDTO){
             Book updateRecord = bookService.updateRecordById(BookId,bookDTO);
             ResponseDTO dto = new ResponseDTO(" Book Record updated successfully by Id",updateRecord);
             return new ResponseEntity(dto,HttpStatus.ACCEPTED);
         }
-
+        /**
+         * Search By BookName
+         * @param name
+         * @return
+         */
         @GetMapping("searchByBookName/{name}")
         public ResponseEntity<ResponseDTO> getBookByName(@PathVariable("name") String name)
         {
@@ -118,7 +126,12 @@ public class BookController {
         return new ResponseEntity(dto,HttpStatus.OK);
     }
 
-
+    /**
+     * Update the Quantity using Put Mapping
+     * @param id
+     * @param quantity
+     * @return
+     */
     @PutMapping("/updateQuantity/{id}")
     public ResponseEntity<ResponseDTO> updateQuantity(@PathVariable Integer id,@RequestBody Integer quantity){
         Book newBook = bookService.updateQuantity(id,quantity);
