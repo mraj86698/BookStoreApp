@@ -15,6 +15,7 @@ import com.example.demo.Model.UserRegistration;
 import com.example.demo.Repository.BookStoreCartRepository;
 import com.example.demo.Repository.BookStoreRepository;
 import com.example.demo.Repository.UserRegistrationRepository;
+import com.example.demo.Util.TokenUtility;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,22 +24,26 @@ import lombok.extern.slf4j.Slf4j;
 public class CartService implements ICartService {
 
 	@Autowired
-	BookStoreRepository bookStoreRepository;
+	BookStoreRepository bookRepo;
 	@Autowired
-	UserRegistrationRepository userRegistrationRepository;
+	UserRegistrationRepository userRepo;
 	@Autowired
-	BookStoreCartRepository bookStoreCartRepository;
+	BookStoreCartRepository cartRepo;
+
+	@Autowired
+    TokenUtility util;
 
 	/**
 	 * Add Cart to Book Details
 	 */
 	@Override
 	public Cart insertItems(CartDTO cartdto) {
-		Optional<Book> book = bookStoreRepository.findById(cartdto.getBookId());
-		Optional<UserRegistration> userRegistration = userRegistrationRepository.findById(cartdto.getUserId());
+		Optional<Book> book = bookRepo.findById(cartdto.getBookId());
+		Optional<UserRegistration> userRegistration = userRepo.findById(cartdto.getUserId());
 		if (book.isPresent() && userRegistration.isPresent()) {
-			Cart newCart = new Cart(cartdto.getQuantity(), book.get(), userRegistration.get());
-			bookStoreCartRepository.save(newCart);
+			int totalPrice = book.get().getPrice() * cartdto.getQuantity();
+			Cart newCart = new Cart(cartdto.getQuantity(), book.get(), userRegistration.get(),totalPrice);
+			cartRepo.save(newCart);
 			return newCart;
 		} else {
 			throw new BookStoreException("Book or User does not exists");
@@ -49,7 +54,7 @@ public class CartService implements ICartService {
 	 */
 	@Override
 	public ResponseDTO getCartDetails() {
-		List<Cart> getCartDetails = bookStoreCartRepository.findAll();
+		List<Cart> getCartDetails = cartRepo.findAll();
 		ResponseDTO dto = new ResponseDTO();
 		if (getCartDetails.isEmpty()) {
 			String message = " Not found Any Cart details ";
@@ -68,7 +73,7 @@ public class CartService implements ICartService {
 	 */
 	@Override
 	public Optional<Cart> getCartDetailsById(Integer cartId) {
-		Optional<Cart> getCartData = bookStoreCartRepository.findById(cartId);
+		Optional<Cart> getCartData = cartRepo.findById(cartId);
 		if (getCartData.isPresent()) {
 			return getCartData;
 		} else {
@@ -80,9 +85,9 @@ public class CartService implements ICartService {
 	 */
 	@Override
 	public Optional<Cart> deleteCartItemById(Integer cartId) {
-		Optional<Cart> deleteData = bookStoreCartRepository.findById(cartId);
+		Optional<Cart> deleteData = cartRepo.findById(cartId);
 		if (deleteData.isPresent()) {
-			bookStoreCartRepository.deleteById(cartId);
+			cartRepo.deleteById(cartId);
 			return deleteData;
 		} else {
 			throw new BookStoreException(" Did not get any cart for specific cart id ");
@@ -96,15 +101,16 @@ public class CartService implements ICartService {
 
 	@Override
 	public Cart updateRecordById(Integer cartId, CartDTO cartDTO) {
-		Optional<Cart> cart = bookStoreCartRepository.findById(cartId);
-		Optional<Book> book = bookStoreRepository.findById(cartDTO.getBookId());
-		Optional<UserRegistration> user = userRegistrationRepository.findById(cartDTO.getUserId());
+		Optional<Cart> cart = cartRepo.findById(cartId);
+		Optional<Book> book = bookRepo.findById(cartDTO.getBookId());
+		Optional<UserRegistration> user = userRepo.findById(cartDTO.getUserId());
 		if (cart.isEmpty()) {
 			throw new BookStoreException("Cart Record doesn't exists");
 		} else {
 			if (book.isPresent() && user.isPresent()) {
-				Cart newCart = new Cart(cartId, cartDTO.getQuantity(), book.get(), user.get());
-				bookStoreCartRepository.save(newCart);
+				int totalPrice = book.get().getPrice() * cartDTO.getQuantity();
+				Cart newCart = new Cart(cartId, cartDTO.getQuantity(), book.get(), user.get(),totalPrice);
+				cartRepo.save(newCart);
 				log.info("Cart record updated successfully for id " + cartId);
 				return newCart;
 			} else {
@@ -113,27 +119,40 @@ public class CartService implements ICartService {
 		}
 	}
 
+
+	/**
+	 * To update Quantity
+	 */
+
+
 	@Override
-	public Cart updateQuantity(Integer id, Integer quantity) {
-		Optional<Cart> cart = bookStoreCartRepository.findById(id);
-		Optional<Book> book = bookStoreRepository.findById(cart.get().getBook().getBookId());
-		if (cart.isEmpty()) {
-			throw new BookStoreException("Cart Record doesn't exists");
-		} else {
-			if (quantity < book.get().getQuantity()) {
-				cart.get().setQuantity(quantity);
-				bookStoreCartRepository.save(cart.get());
-				log.info("Quantity in cart record updated successfully");
-				book.get().setQuantity(book.get().getQuantity() - (quantity - cart.get().getQuantity()));
-				bookStoreRepository.save(book.get());
-				return cart.get();
-			} else {
+	public Cart updateQuantity(String token, Integer cartId, int quantity) {
+		int userId = util.decodeToken(token);
+		 UserRegistration user = userRepo.findById(userId).orElse(null);
+		Optional<Cart> cart = cartRepo.findById(cartId);
+		Optional<Book> book = bookRepo.findById(cart.get().getBook().getBookId());
+		if (cart!=null&& user!=null && book !=null) {
+			cart.get().setQuantity(quantity);
+            cart.get().setTotalPrice(book.get().getPrice() * quantity);
+            return cartRepo.save(cart.get());
+		}
+
+		else {
 				throw new BookStoreException("Requested quantity is not available");
 			}
 		}
-	}
 
-
-
+	/**
+	 * To Get Cart Details BY User Id
+	 */
+	@Override
+    public List<Cart> getCartDetailsByUser(String token) {
+		int userId = util.decodeToken(token);
+        List<Cart> userCartList = cartRepo.getCartListByUser(userId);
+        if(userCartList.isEmpty()){
+            return null;
+        }else
+            return userCartList;
+    }
 
 }

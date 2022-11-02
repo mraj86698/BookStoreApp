@@ -17,8 +17,6 @@ public interface IBookService {
 
 	    Object deleteRecordByToken(int BookId);
 
-	    List<Book> getBookByName(String bookName);
-
 	    List<Book> sortedListOfBooksInAscendingOrder();
 
 	    List<Book> sortedListOfBooksInDescendingOrder();

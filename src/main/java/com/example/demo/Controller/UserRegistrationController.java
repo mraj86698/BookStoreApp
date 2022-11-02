@@ -59,10 +59,10 @@ public class UserRegistrationController {
      * @param userDTO
      * @return
      */
-    @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateRecordById(@PathVariable Integer id,@Valid @RequestBody UserDTO userDTO){
-        UserRegistration entity = userRegistrationService.updateRecordByToken(id,userDTO);
-        ResponseDTO dto = new ResponseDTO("User Record updated successfully",entity);
+    @PutMapping("/update/{token}")
+    public ResponseEntity<String> updateUserById(@PathVariable String token,@Valid @RequestBody UserDTO userDTO){
+        UserRegistration entity = userRegistrationService.updateUser(token,userDTO);
+        ResponseDTO dto = new ResponseDTO("User Data Updated Successfully",entity);
         return new ResponseEntity(dto,HttpStatus.ACCEPTED);
     }
     /**
@@ -79,29 +79,16 @@ public class UserRegistrationController {
     }
 
     /**
-     * Get Particular User by Token
+     * Get Particular User Details  by Token
      * @param token
      * @return
      */
-    @GetMapping("/getBy/{token}")
+    @GetMapping("/getUserBy/{token}")
     public ResponseEntity<ResponseDTO> getUserById(@PathVariable String token) {
         return new ResponseEntity<ResponseDTO>( new
                 ResponseDTO("Get User Data By Id",
                 userRegistrationService.getUserById(token)), HttpStatus.OK);
     }
-
-    /**
-     * get User Data by EmailId
-     * @param emailId
-     * @return
-     */
-    @GetMapping("/getByEmailId/{emailId}")
-    public ResponseEntity<ResponseDTO> getUserByEmailId(@PathVariable("emailId") String emailId) {
-        return new ResponseEntity<ResponseDTO>( new
-                ResponseDTO("Get User Data by Email",
-                userRegistrationService.getUserByEmailId(emailId)), HttpStatus.OK);
-    }
-
 
 
      /**
@@ -110,9 +97,10 @@ public class UserRegistrationController {
       * @param password
       * @return
       */
+
     @PostMapping("/forgotPassword")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email, @RequestParam String password) {
-        String resp = userRegistrationService.forgotPassword(email,password);
+    public ResponseEntity<String> forgotPassword(@RequestParam String email, @RequestParam String password,@RequestParam String newpassword) {
+        String resp = userRegistrationService.forgotPassword(email,password,newpassword);
         return new ResponseEntity(resp, HttpStatus.OK);
     }
 

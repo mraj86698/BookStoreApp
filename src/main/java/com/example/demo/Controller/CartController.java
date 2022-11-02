@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -86,11 +87,30 @@ public class CartController {
         ResponseDTO dto = new ResponseDTO(" Cart Record updated successfully by Id",updateRecord);
         return new ResponseEntity(dto,HttpStatus.ACCEPTED);
     }
+    /**
+     * To Update the Quantity using user token and cartId
+     * @param token
+     * @param cartId
+     * @param quantity
+     * @return
+     */
 
-    @PutMapping("/updateQuantity/{id}")
-    public ResponseEntity<ResponseDTO> updateQuantity(@PathVariable Integer id,@RequestParam Integer quantity){
-        Cart newCart = cartService.updateQuantity(id,quantity);
-        ResponseDTO dto = new ResponseDTO("Quantity for book record updated successfully !",newCart);
+    @PutMapping("/updateQuantity/{token}/{cartId}")
+    public ResponseEntity<ResponseDTO> updateQuantity(@PathVariable String token,@PathVariable Integer cartId,@RequestParam int quantity){
+        Cart updateCartQuantity= cartService.updateQuantity(token,cartId,quantity);
+        ResponseDTO dto = new ResponseDTO("Quantity for book record updated successfully !",updateCartQuantity);
         return new ResponseEntity(dto,HttpStatus.OK);
     }
+    /**
+     * Get UserCartDetails using user Token
+     * @param token
+     * @return
+     */
+    @GetMapping("/userCart/{token}")
+    public ResponseEntity<ResponseDTO> getCartDataByUserID(@PathVariable String token){
+        List<Cart> userCartDetails = cartService.getCartDetailsByUser(token);
+        ResponseDTO responseDTO = new ResponseDTO("Cart Details of Given ID are Retrieved Successfully", userCartDetails);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
 }

@@ -15,11 +15,16 @@ public interface IUserService {
 
 	    Object getUserById(String token);
 
-	    String forgotPassword(String email, String password);
+	    //String forgotPassword(String email, String password);
 
-	    Object getUserByEmailId(String emailId);
+		UserRegistration updateUser(String token, UserDTO userDTO);
 
-		UserRegistration updateRecordByToken(Integer id, UserDTO userDTO);
+		UserRegistration getByToken(String token);
+
+		/**
+		 * forgot password for User
+		 */
+		String forgotPassword(String email, String password, String newPassword);
 
 
 

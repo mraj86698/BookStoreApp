@@ -27,11 +27,11 @@ public class UserService implements IUserService {
      */
     @Override
     public String addUser(UserDTO userDTO) {
-        UserRegistration userRegistration= new UserRegistration(userDTO);
-        userRepository.save(userRegistration);
-        String token = util.createToken(userRegistration.getUserId());
-        mailService.sendEmail(userRegistration.getEmail(), "Test Email", "Registered SuccessFully, hii: "
-                +userRegistration.getFirstName()+"Please Click here to get data-> "
+        UserRegistration user= new UserRegistration(userDTO);
+        userRepository.save(user);
+        String token = util.createToken(user.getUserId());
+        mailService.sendEmail(user.getEmail(), "Registered SuccessFully", "Thank you for Registering Book Store App,hii: "
+                +user.getFirstName()+"Please Click here to get data-> "
                 +"http://localhost:8081/user/getBy/"+token);
         return token;
     }
@@ -55,7 +55,7 @@ public class UserService implements IUserService {
             throw new BookStoreException("Record for provided userId is not found");
         }
         else {
-            mailService.sendEmail("mraj8669865@gmail.com", "Test Email", "Get your data with this token, hii: "
+            mailService.sendEmail("mraj8669865@gmail.com", "This is Your Token For Decode Your data", "Get your data with this token, hii: "
                     +getUser.get().getEmail()+"Please Click here to get data-> "
                     +"http://localhost:8080/user/getBy/"+token);
             return getUser;
@@ -67,7 +67,7 @@ public class UserService implements IUserService {
     */
     @Override
     public String loginUser(String email, String password) {
-     Optional<UserRegistration> login = userRepository.findByEmailid(email);
+     Optional<UserRegistration> login = userRepository.findByEmail(email);
      if(login.isPresent()){
          String pass = login.get().getPassword();
          if(login.get().getPassword().equals(password)){
@@ -85,39 +85,36 @@ public class UserService implements IUserService {
     /**
      * forgot password for User
      */
+
     @Override
-    public String forgotPassword(String email, String password) {
-        Optional<UserRegistration> isUserPresent = userRepository.findByEmailid(email);
-
-        if(!isUserPresent.isPresent()) {
-            throw new BookStoreException("Book record does not found");
+    public String forgotPassword(String email, String oldpassword, String newPassword) {
+        Optional<UserRegistration> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            String password = user.get().getPassword();
+            if (password.equals(oldpassword)) {
+                UserRegistration user1 = user.get();
+                user1.setPassword(newPassword);
+                userRepository.save(user1);
+                mailService.sendEmail(user1.getEmail(), "Password Reset mail", "User password reset successfully");
+                return "Password updated successfully";
+            }else throw new BookStoreException("Please enter correct password");
         }
-        else {
-            UserRegistration user = isUserPresent.get();
-            user.setPassword(password);
-            userRepository.save(user);
-            return "Password updated successfully";
-        }
-
+        return "User not found";
     }
 
     @Override
-    public Object getUserByEmailId(String emailId) {
-
-        return userRepository.findByEmailid(emailId);
+    public UserRegistration getByToken(String token) {
+        int id = util.decodeToken(token);
+        return userRepository.findById(id).orElseThrow(() -> new BookStoreException("User data not found"));
     }
-
 	@Override
-    public UserRegistration updateRecordByToken(Integer id, UserDTO userDTO) {
+    public UserRegistration updateUser(String token, UserDTO userDTO) {
 
-        Optional<UserRegistration> addressBook = userRepository.findById(id);
-        if(addressBook.isEmpty()) {
-            throw new BookStoreException("User Details for id not found");
-        }
-        UserRegistration newBook = new UserRegistration(id,userDTO);
-        userRepository.save(newBook);
+        UserRegistration user=this.getByToken(token);
+        user.updateUser(userDTO);
+        mailService.sendEmail(user.getEmail(), "Update mail", "User data updated successfully");
+        return userRepository.save(user);
 
-        return newBook;
     }
 
 
